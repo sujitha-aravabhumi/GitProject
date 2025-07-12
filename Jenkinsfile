@@ -6,26 +6,32 @@ pipeline {
     }
 
     stages {
-        stage('Checkout Code from Git') {
+        stage('Checkout Code to specific folder') {
             steps {
-                echo "Starting to checkout code from Git..."
-                checkout scm
-                echo "Code successfully checked out into the workspace."
-                echo "Current directory: ${pwd()}"
+                def targetRepoFolder = "pulled-code"
+                echo "Attempting to checkout code into: ${targetRepoFolder}"
+                dir(targetRepoFolder){
+                    checkout scm
+                echo "Code successfully checked out into: ${pwd()}"
+                }
+                echo "checkout operation completed."
+                }
             }
         }
 
-        stage('Verify Files') {
+        stage('Verify content in Folder') {
             steps {
                 echo "Listing files to confirm checkout..."
                 script {
-                    if (isUnix()) {
-                        sh 'ls -la' // List all files and directories
-                    } else {
-                        bat 'dir /b /s' // List files and directories
+                    def sourcecodeLocation = "pulled-code"
+                    echo "source_code_location: ${sourcecodeLocation}"
+                    if (isUnix()){
+                         sh 'ls -la'
+                    }else{
+                        bat 'dir /b /s'
                     }
                 }
-                echo "File listing complete."
+                echo "Content verification complete."
             }
         }
 
@@ -37,10 +43,10 @@ pipeline {
             echo "Pipeline finished. Workspace cleaned."
         }
         success {
-            echo "Pipeline completed successfully! :)"
+            echo "Pipeline completed successfully!"
         }
         failure {
-            echo "Pipeline failed! :("
+            echo "Pipeline failed!"
         }
     }
 }
